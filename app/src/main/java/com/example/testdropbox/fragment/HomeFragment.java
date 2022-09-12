@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -51,8 +52,9 @@ import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.Metadata;
 import com.example.testdropbox.DialogSelectFolder;
 import com.example.testdropbox.DropboxAPI;
-import com.example.testdropbox.adapter.FileAdapter;
 import com.example.testdropbox.R;
+import com.example.testdropbox.adapter.BreadCrumbAdapter;
+import com.example.testdropbox.adapter.FileAdapter;
 import com.example.testdropbox.callback.BooleanCallback;
 import com.example.testdropbox.callback.InputStreamCallback;
 import com.example.testdropbox.callback.ListMetadataCallback;
@@ -71,6 +73,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -81,7 +84,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 public class HomeFragment extends Fragment {
 
     FileAdapter fileAdapter;
+    BreadCrumbAdapter breadCrumbAdapter;
     RecyclerView recyclerView;
+    RecyclerView breadCrumbList;
     RelativeLayout loading;
     ImageView imgBack;
     String token;
@@ -91,13 +96,12 @@ public class HomeFragment extends Fragment {
     DropboxAPI dropboxAPI;
     CompositeDisposable compositeDisposable;
     MediaPlayer mediaPlayer;
-
+    LinearLayout layoutNavigation;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-
     }
 
 
@@ -116,7 +120,34 @@ public class HomeFragment extends Fragment {
         dropboxAPI = new DropboxAPI(compositeDisposable, token);
         initView(view);
         initRecyclerView();
+        initBreadCrumb();
         return view;
+    }
+
+    public List<String> getFolderList() {
+        String[] arrFolder = curPath.split("/");
+        List<String> stringList = Arrays.asList(arrFolder);
+        return stringList;
+    }
+
+    private void initBreadCrumb() {
+        breadCrumbList.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        breadCrumbList.setLayoutManager(linearLayoutManager);
+        breadCrumbAdapter = new BreadCrumbAdapter(getFolderList(), new StringCallback() {
+            @Override
+            public void listener(String string) {
+                loading.setVisibility(View.VISIBLE);
+                if (string.equals("")) {
+                    layoutNavigation.setVisibility(View.GONE);
+                } else {
+                    layoutNavigation.setVisibility(View.VISIBLE);
+                }
+                curPath = string;
+                refresh();
+            }
+        });
+        breadCrumbList.setAdapter(breadCrumbAdapter);
     }
 
 
@@ -129,7 +160,7 @@ public class HomeFragment extends Fragment {
             public void listener(Metadata metadata) {
                 if (currentMetadata != null && currentMetadata.equals(metadata)) {
                     if (metadata instanceof FolderMetadata) {
-                        imgBack.setVisibility(View.VISIBLE);
+                        layoutNavigation.setVisibility(View.VISIBLE);
                         loading.setVisibility(View.VISIBLE);
                         curPath = curPath + "/" + metadata.getName();
                         refresh();
@@ -176,7 +207,6 @@ public class HomeFragment extends Fragment {
 
 
     private void previewVideo(String string) {
-        Log.d("AAA", string);
         Dialog dialog = new Dialog(getContext(), R.style.full_screen_dialog);
         LayoutInflater layoutInflater = getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.dialog_preview_video, null, false);
@@ -227,7 +257,6 @@ public class HomeFragment extends Fragment {
                 return true;
             }
         });
-
         dialog.show();
     }
 
@@ -459,20 +488,20 @@ public class HomeFragment extends Fragment {
                 .apply(new RequestOptions().placeholder(R.drawable.loading).error(R.drawable.img_fail))
                 .into(imageView);
         dialog.show();
-
     }
 
     private void initView(View view) {
+        layoutNavigation = view.findViewById(R.id.layoutNavigation);
+        layoutNavigation.setVisibility(View.GONE);
+        breadCrumbList = view.findViewById(R.id.breadcrumbList);
         recyclerView = view.findViewById(R.id.recyclerView);
         loading = view.findViewById(R.id.loadingView);
         imgBack = view.findViewById(R.id.imgBack);
-        imgBack.setVisibility(View.GONE);
-
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 curPath = curPath.substring(0, curPath.lastIndexOf("/"));
-                if (curPath.trim().equals("")) imgBack.setVisibility(View.GONE);
+                if (curPath.trim().equals("")) layoutNavigation.setVisibility(View.GONE);
                 refresh();
             }
         });
@@ -491,13 +520,16 @@ public class HomeFragment extends Fragment {
         MenuItem delete = currentMenu.findItem(R.id.delete);
         MenuItem move = currentMenu.findItem(R.id.move);
         MenuItem download = currentMenu.findItem(R.id.download);
+        MenuItem properties = currentMenu.findItem(R.id.properties);
         if (copy == null || delete == null || move == null || download == null) return;
         if (isSelected) {
             copy.setVisible(true);
+            properties.setVisible(true);
             delete.setVisible(true);
             move.setVisible(true);
             download.setVisible(true);
         } else {
+            properties.setVisible(false);
             copy.setVisible(false);
             delete.setVisible(false);
             move.setVisible(false);
@@ -506,6 +538,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void refresh() {
+        breadCrumbAdapter.setStringList(getFolderList());
         currentMetadata = null;
         changeMenu(false);
         loading.setVisibility(View.VISIBLE);

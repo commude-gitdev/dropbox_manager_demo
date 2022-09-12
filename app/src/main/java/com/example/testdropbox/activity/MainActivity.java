@@ -1,19 +1,21 @@
 package com.example.testdropbox.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.os.BuildCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
-import com.dropbox.core.DbxWebAuth;
 import com.dropbox.core.android.Auth;
+import com.example.testdropbox.BuildConfig;
 import com.example.testdropbox.R;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String KEY = "ipjcwa57av127b2";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnLogin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Auth.startOAuth2Authentication(getApplicationContext(), KEY);
+                Auth.startOAuth2Authentication(getApplicationContext(),BuildConfig.API_KEY);
             }
         });
     }

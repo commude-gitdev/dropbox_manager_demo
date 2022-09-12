@@ -7,13 +7,25 @@
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <ImageView
-            android:id="@+id/imgBack"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            android:layout_width="30dp"
-            android:layout_height="30dp">
-        </ImageView>
+        <LinearLayout
+            android:id="@+id/layoutNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:visibility="visible"
+                android:id="@+id/imgBack"
+                android:layout_margin="12dp"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                android:layout_width="30dp"
+                android:layout_height="30dp">
+            </ImageView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_gravity="center"
+                android:id="@+id/breadcrumbList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:layout_centerInParent="true"
             android:id="@+id/recyclerView"

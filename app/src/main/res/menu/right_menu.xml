@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <item
-            app:showAsAction="never"
+            app:showAsAction="always"
             android:visible="true"
             android:id="@+id/newFolder"
             android:icon="@drawable/ic_baseline_create_new_folder_24"
@@ -35,7 +35,7 @@
         </item>
 
         <item
-            app:showAsAction="never"
+            app:showAsAction="always"
             android:visible="true"
             android:id="@+id/upload"
             android:icon="@drawable/ic_baseline_upload_24"
@@ -43,7 +43,7 @@
         </item>
 
         <item
-            app:showAsAction="never"
+            app:showAsAction="always"
             android:visible="true"
             android:id="@+id/takePhoto"
             android:icon="@drawable/ic_baseline_photo_camera_24"
@@ -60,18 +60,17 @@
 
         <item
             app:showAsAction="never"
-            android:visible="true"
+            android:visible="false"
             android:id="@+id/properties"
             android:icon="@drawable/ic_baseline_info_24"
             android:title="Properties">
         </item>
 
         <item
-            app:showAsAction="never"
+            app:showAsAction="always"
             android:visible="true"
             android:id="@+id/refresh"
             android:icon="@drawable/ic_baseline_refresh_24"
             android:title="Refresh">
         </item>
-
 </menu>
