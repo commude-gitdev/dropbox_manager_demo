@@ -7,12 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.dropbox.core.DbxWebAuth;
 import com.dropbox.core.android.Auth;
 import com.example.testdropbox.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String KEY = "2ykcjwfq8554gzg";
+    public static final String KEY = "ipjcwa57av127b2";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

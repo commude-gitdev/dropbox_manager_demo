@@ -23,24 +23,25 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
-            android:name="com.dropbox.core.android.AuthActivity"
-            android:configChanges="orientation|keyboard"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask"
+            android:name="com.dropbox.core.android.AuthActivity">
             <intent-filter>
-                <data android:scheme="db-2ykcjwfq8554gzg" />
-
+                <data android:scheme="db-ipjcwa57av127b2" />
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-    </application>
 
+    </application>
+    <queries>
+        <package android:name="com.dropbox.android" />
+    </queries>
 </manifest>

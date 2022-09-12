@@ -27,8 +27,13 @@ public class SettingFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
+    public void onStart() {
+        super.onStart();
         initFragment();
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
     }
 
@@ -45,7 +50,8 @@ public class SettingFragment extends Fragment {
                 removeFragment(profileFragment);
             }
         });
-        addFragment(navSettingFragment);
+        FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.mainContent, navSettingFragment, null).commit();
     }
 
     private void addFragment(Fragment fragment) {
