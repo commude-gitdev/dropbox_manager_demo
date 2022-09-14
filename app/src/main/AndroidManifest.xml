@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.testdropbox">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
@@ -14,18 +16,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
-
         <activity
             android:name=".activity.HomeActivity"
-            android:exported="false" />
+            android:exported="true">
+        </activity>
         <activity
+
             android:name=".activity.MainActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
+            <intent-filter tools:node="merge" android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="127.0.0.1"
+                    android:scheme="https"/>
+                <data
+                    android:host="callback"
+                    android:scheme="auth"/>
+            </intent-filter>
         </activity>
         <activity
             android:exported="true"
@@ -35,6 +50,7 @@
             <intent-filter>
                 <data android:scheme="@string/API_KEY" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

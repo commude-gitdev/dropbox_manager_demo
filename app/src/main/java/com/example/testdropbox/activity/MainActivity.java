@@ -1,21 +1,20 @@
 package com.example.testdropbox.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.os.BuildCompat;
-
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.dropbox.core.android.Auth;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
+
 import com.example.testdropbox.BuildConfig;
 import com.example.testdropbox.R;
 
 
 public class MainActivity extends AppCompatActivity {
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,20 +23,51 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnLogin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Auth.startOAuth2Authentication(getApplicationContext(),BuildConfig.API_KEY);
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                CustomTabsIntent customTabsIntent = builder.build();
+                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                openCustomTab(MainActivity.this, customTabsIntent, Uri.parse("" +
+                        "https://www.dropbox.com/oauth2/authorize?client_id="
+                        + BuildConfig.API_KEY + "&response_type=token&redirect_uri=auth://callback"));
             }
         });
+
+    }
+
+    public static void openCustomTab(Activity activity, CustomTabsIntent customTabsIntent, Uri uri) {
+        String packageName = "com.android.chrome";
+        if (packageName != null) {
+            customTabsIntent.intent.setPackage(packageName);
+            customTabsIntent.launchUrl(activity, uri);
+        } else {
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        String token = Auth.getOAuth2Token();
-        if (token != null) {
-            Intent intent = new Intent(this, HomeActivity.class);
-            intent.putExtra("TOKEN", token);
-            startActivity(intent);
+    protected void onNewIntent(Intent intent) {
+        Log.d("AAA","onNewIntent"+intent.toString());
+        super.onNewIntent(intent);
+        this.setIntent(intent);
+        Uri appLinkData = intent.getData();
+        if (appLinkData == null) return;
+        String url = appLinkData.toString();
+        if (url.contains("#access_token=")) {
+            String[] split1 = url.split("#access_token=", 2);
+            String[] split2 = split1[split1.length - 1].split("&");
+            String token = split2[0];
+            if (token != null) {
+                Intent intent2=new Intent(this,HomeActivity.class);
+                intent2.putExtra("TOKEN",token);
+                startActivity(intent2);
+            }
+        } else {
             finish();
+            startActivity(new Intent(this,MainActivity.class));
         }
     }
+
+
+
+
 }
