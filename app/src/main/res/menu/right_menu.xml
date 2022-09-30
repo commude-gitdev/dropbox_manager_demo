@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <item
+            app:showAsAction="always"
+            android:visible="true"
+            android:id="@+id/newFolder"
+            android:icon="@drawable/ic_baseline_create_new_folder_24"
+            android:title="New Folder">
+        </item>
+
+        <item
+            app:showAsAction="never"
+            android:visible="false"
+            android:id="@+id/copy"
+            android:icon="@drawable/ic_baseline_file_copy_24"
+            android:title="Copy">
+        </item>
+
+        <item
+            app:showAsAction="never"
+            android:visible="false"
+            android:id="@+id/delete"
+            android:icon="@drawable/ic_baseline_delete_24"
+            android:title="Delete">
+        </item>
+
+        <item
+            app:showAsAction="never"
+            android:visible="false"
+            android:id="@+id/move"
+            android:icon="@drawable/ic_baseline_drive_file_move_24"
+            android:title="Move">
+        </item>
+
+        <item
+            app:showAsAction="always"
+            android:visible="true"
+            android:id="@+id/upload"
+            android:icon="@drawable/ic_baseline_upload_24"
+            android:title="Upload">
+        </item>
+
+        <item
+            app:showAsAction="always"
+            android:visible="true"
+            android:id="@+id/takePhoto"
+            android:icon="@drawable/ic_baseline_photo_camera_24"
+            android:title="Take Photo">
+        </item>
+
+        <item
+            app:showAsAction="never"
+            android:visible="true"
+            android:id="@+id/properties"
+            android:icon="@drawable/ic_baseline_info_24"
+            android:title="Properties">
+        </item>
+
+        <item
+            app:showAsAction="always"
+            android:visible="true"
+            android:id="@+id/refresh"
+            android:icon="@drawable/ic_baseline_refresh_24"
+            android:title="Refresh">
+        </item>
+
+</menu>
