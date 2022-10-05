@@ -1,27 +1,19 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.activity;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.hoangt3k56.dropbox.R;
+import com.hoangt3k56.dropbox.adapter.MyHomeAdapter;
+import com.hoangt3k56.dropbox.fragment.HomeFragment;
+import com.hoangt3k56.dropbox.fragment.SettingFragment;
+import com.hoangt3k56.dropbox.fragment.SyncFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,67 +71,5 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-
-
-//    @SuppressLint("RestrictedApi")
-//    @Override
-//    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.right_menu,menu);
-//
-//        if(menu instanceof MenuBuilder){
-//
-//            MenuBuilder menuBuilder = (MenuBuilder) menu;
-//            menuBuilder.setOptionalIconsVisible(true);
-//        }
-//
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        switch (item.getItemId())
-//        {
-//            case R.id.upload: pickFile(); break;
-//            case R.id.refresh:
-//                Log.e("AAA", "rfMAin");
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
-    private void pickFile() {
-        Intent data = new Intent(Intent.ACTION_GET_CONTENT);
-        data.addCategory(Intent.CATEGORY_OPENABLE);
-        data.setType("*/*");
-        Intent intent = Intent.createChooser(data, "Choose a file");
-        ActivityResultLauncher<Intent> startActivityForResult = new ActivityResultLauncher<Intent>() {
-            @Override
-            public void launch(Intent input, @Nullable ActivityOptionsCompat options) {
-
-            }
-
-            @Override
-            public void unregister() {
-
-            }
-
-            @NonNull
-            @Override
-            public ActivityResultContract<Intent, ?> getContract() {
-                return null;
-            }
-        };
-        startActivityForResult.launch(intent);
-    }
-//
-//
-//
-//    ActivityResultLauncher<Intent> startActivityForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-//        if (result.getResultCode() == Activity.RESULT_OK) {
-//            Intent data = result.getData();
-////            new UploadFile().execute(data.getData());
-//        }
-//    });
 
 }

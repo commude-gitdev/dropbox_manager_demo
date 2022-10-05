@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.fragment;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +18,8 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.CreateFolderResult;
+import com.hoangt3k56.dropbox.listener.ListenerString;
+import com.hoangt3k56.dropbox.R;
 
 public class FolderNewFragment extends Fragment {
 

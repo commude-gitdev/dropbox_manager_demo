@@ -28,16 +28,16 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal">
         <Button
-            android:id="@+id/btn_new_folder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tạo"
-            android:backgroundTint="#8F8686"/>
-        <Button
             android:id="@+id/btn_cancel_new_folder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hủy"
+            android:backgroundTint="#8F8686"/>
+        <Button
+            android:id="@+id/btn_new_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo"
             android:layout_marginLeft="100dp"
             android:backgroundTint="#8F8686"/>
     </LinearLayout>

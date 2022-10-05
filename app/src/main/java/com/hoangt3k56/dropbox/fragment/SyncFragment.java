@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.fragment;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +20,7 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
+import com.hoangt3k56.dropbox.R;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.dropbox.core.android.Auth;
+import com.hoangt3k56.dropbox.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -31,9 +32,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         String token = Auth.getOAuth2Token();
+
         if(token!=null)
         {
-            Intent intent=new Intent(this,MainActivity.class);
+            Intent intent=new Intent(this, MainActivity.class);
             intent.putExtra("TOKEN",token);
             startActivity(intent);
         }

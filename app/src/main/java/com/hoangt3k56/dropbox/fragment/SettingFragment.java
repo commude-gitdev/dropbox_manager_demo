@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.hoangt3k56.dropbox.listener.Listener;
+import com.hoangt3k56.dropbox.R;
 
 public class SettingFragment extends Fragment {
 

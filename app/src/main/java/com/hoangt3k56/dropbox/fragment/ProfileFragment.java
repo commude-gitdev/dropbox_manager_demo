@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.fragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -32,6 +32,8 @@ import com.dropbox.core.v2.account.SetProfilePhotoResult;
 import com.dropbox.core.v2.users.FullAccount;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
+import com.hoangt3k56.dropbox.listener.Listener;
+import com.hoangt3k56.dropbox.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,13 +65,19 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view=LayoutInflater.from(getContext()).inflate(R.layout.fragment_profile,container,false);
+        initView(view);
 
-        imageView=view.findViewById(R.id.imgAvatar);
-        tvCancel=view.findViewById(R.id.tvCancel);
-        tvSave=view.findViewById(R.id.tvSave);
-        tvName=view.findViewById(R.id.tvName);
+        new GetUser().execute("");
+        return view;
+    }
 
-        relativeLayout=view.findViewById(R.id.loadingView);
+    private void initView(View view) {
+        imageView       = view.findViewById(R.id.imgAvatar);
+        tvCancel        = view.findViewById(R.id.tvCancel);
+        tvSave          = view.findViewById(R.id.tvSave);
+        tvName          = view.findViewById(R.id.tvName);
+        relativeLayout   =    view.findViewById(R.id.loadingView);
+
         relativeLayout.setVisibility(View.VISIBLE);
 
         tvCancel.setOnClickListener(new View.OnClickListener() {
@@ -93,8 +101,6 @@ public class ProfileFragment extends Fragment {
                 new saveImg().execute("");
             }
         });
-        new GetUser().execute("");
-        return view;
     }
 
 
@@ -120,6 +126,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected void onPostExecute(FullAccount fullAccount) {
             super.onPostExecute(fullAccount);
+
             relativeLayout.setVisibility(View.GONE);
             tvName.setText(fullAccount.getName().getDisplayName());
 

@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,20 +13,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.Metadata;
+import com.hoangt3k56.dropbox.listener.ListenerMetadata;
+import com.hoangt3k56.dropbox.R;
 
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.viewHodel> {
 
-    public ListenerMetadata listenerMetadata;
     private List<Metadata> metadataList;
-    ListenerString listenerString;
+    ListenerMetadata listenerMetadata;
 
-    public FileAdapter(ListenerString listenerString) {
-        this.listenerString = listenerString;
+    public FileAdapter(ListenerMetadata listenerMetadata) {
+        this.listenerMetadata = listenerMetadata;
     }
 
-    void setMetadataList(List<Metadata> list) {
+    public void setMetadataList(List<Metadata> list) {
         this.metadataList = list;
         notifyDataSetChanged();
      }
@@ -50,7 +50,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.viewHodel> {
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listenerString.listenerString(metadata.getPathLower());
+                    listenerMetadata.listener(metadata, 0);
+                }
+            });
+
+            holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    listenerMetadata.listener(metadata, 1);
+                    return false;
                 }
             });
 

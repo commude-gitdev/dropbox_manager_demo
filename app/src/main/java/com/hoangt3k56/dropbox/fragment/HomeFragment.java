@@ -1,16 +1,13 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.fragment;
 
 
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,9 +29,9 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
+import com.hoangt3k56.dropbox.listener.ListenerString;
+import com.hoangt3k56.dropbox.R;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +47,6 @@ public class HomeFragment extends Fragment {
     private int SELESECT_FILE_REQUEST = 1111;
     public static String mpath="";
     private Uri uri_up_load;
-    String filePath;
 
 
 
@@ -60,6 +56,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_home, container, false);
         token = getArguments().getString("TOKEN");
+
+
 
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.right_menu);
@@ -92,6 +90,8 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
+
+
 
 
     private void takePhoto() {
@@ -203,8 +203,7 @@ public class HomeFragment extends Fragment {
             public void listenerString(String name_folder) {
 //                Log.d("hoangdev", "mpath"+mpath);
                 removeFragment(folderNewFragment);
-                folderFagment.setMpath(mpath);
-                replaceFragment(folderFagment);
+                replaceFragment(new FolderFagment(token, mpath));
             }
         });
         replaceFragment(folderNewFragment);

@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

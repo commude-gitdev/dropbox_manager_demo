@@ -1,4 +1,4 @@
-package com.hoangt3k56.dropbox;
+package com.hoangt3k56.dropbox.adapter;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.hoangt3k56.dropbox.listener.ListenerInt;
+import com.hoangt3k56.dropbox.R;
+import com.hoangt3k56.dropbox.model.ItemNav;
 
 import java.util.List;
 
