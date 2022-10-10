@@ -18,19 +18,24 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.CreateFolderResult;
+import com.hoangt3k56.dropbox.listener.ListenerBoolean;
 import com.hoangt3k56.dropbox.listener.ListenerString;
 import com.hoangt3k56.dropbox.R;
+import com.hoangt3k56.dropbox.model.DropBoxAPI;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class FolderNewFragment extends Fragment {
 
-    public ListenerString listenerString;
-
-    private Button btn_tao, btn_huy;
-    private EditText edt_name_fodel;
+    ListenerBoolean listener;
+    Button btn_tao, btn_huy;
+    EditText edt_name_fodel;
     String name, token, mpath;
+    DropBoxAPI Api;
 
-    public FolderNewFragment(String token,String path, ListenerString listenerString){
-        this.listenerString = listenerString;
+
+    public FolderNewFragment(String token,String path, ListenerBoolean listener){
+        this.listener = listener;
         this.token = token;
         this.mpath = path;
     }
@@ -39,19 +44,14 @@ public class FolderNewFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_new_folder, container, false);
-
-        btn_huy = (Button) view.findViewById(R.id.btn_cancel_new_folder);
-        btn_tao = (Button) view.findViewById(R.id.btn_new_folder);
-        edt_name_fodel = (EditText) view.findViewById(R.id.edt_name_folder);
-
-
+        initUi(view);
         btn_tao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 name = edt_name_fodel.getText().toString();
                 if(name != null  && !name.isEmpty()) {
-                    listenerString.listenerString(name);
-                    new NewFolder().execute(name);
+                    listener.listener(true);
+                    newFolder();
                 } else {
                     Toast.makeText(getContext(), "không được bỏ trống", Toast.LENGTH_SHORT).show();
                 }
@@ -62,8 +62,7 @@ public class FolderNewFragment extends Fragment {
         btn_huy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                name = "hoang_dev_cancel";
-                listenerString.listenerString(name);
+                listener.listener(true);
             }
         });
 
@@ -71,33 +70,27 @@ public class FolderNewFragment extends Fragment {
         return view;
     }
 
+    private void initUi(View view) {
+        btn_huy = (Button) view.findViewById(R.id.btn_cancel_new_folder);
+        btn_tao = (Button) view.findViewById(R.id.btn_new_folder);
+        edt_name_fodel = (EditText) view.findViewById(R.id.edt_name_folder);
 
-    public class NewFolder extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config, token);
-            CreateFolderResult folder = null;
-            try {
-                String path = mpath+ "/" +name;
-                Log.d("hoangdev","path them:  " +path);
-                 folder = client.files().createFolderV2(path);
-                 return true;
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", e.toString());
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                Log.d("hoangdev", "theem folder thanh cong");
-            } else {
-                Log.e("hoangdev", "ko them dc folder");
-            }
-        }
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Api = new DropBoxAPI(compositeDisposable, token);
     }
+
+    private void newFolder() {
+        Api.newFolder(mpath, name, new ListenerBoolean() {
+            @Override
+            public void listener(Boolean isBoolean) {
+                if (isBoolean) {
+                    Toast.makeText(getContext(), "NewFolder success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "NewFolder error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+
 }

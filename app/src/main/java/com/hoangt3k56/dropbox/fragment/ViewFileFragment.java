@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -28,8 +29,9 @@ import java.net.URL;
 
 public class ViewFileFragment extends Fragment {
 
-    private ImageView img;
-    private VideoView video;
+    ImageView img;
+    VideoView video;
+    RelativeLayout layout;
     public String url, typeFile;
 
     public ViewFileFragment(String url, String typeFile){
@@ -49,6 +51,8 @@ public class ViewFileFragment extends Fragment {
                     .load(uri)
                     .error(R.drawable.img_fail)
                     .into(img);
+
+
         } else if (typeFile.equals("mp4")) {
             MediaController mediaController = new MediaController(getContext());
             mediaController.setAnchorView(video);

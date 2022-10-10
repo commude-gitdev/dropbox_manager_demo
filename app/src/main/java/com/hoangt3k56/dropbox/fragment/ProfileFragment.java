@@ -34,27 +34,31 @@ import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 import com.hoangt3k56.dropbox.listener.Listener;
 import com.hoangt3k56.dropbox.R;
+import com.hoangt3k56.dropbox.listener.ListenerBoolean;
+import com.hoangt3k56.dropbox.listener.ListenerFullAccount;
+import com.hoangt3k56.dropbox.model.DropBoxAPI;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+
 
 public class ProfileFragment extends Fragment {
 
-    private static final int CAMERA_PIC_REQUEST = 1111;
-    String token;
-
-    Listener listener;
     ImageView imageView;
-    TextView tvCancel,tvSave;
-    TextView tvName;
+    TextView tvCancel, tvSave, tvName;
     RelativeLayout relativeLayout;
 
-    String base64;
+    Listener listener;
+    String token, base64;
 
-    public String imgUrl;
     private int CAMERA_CODE =12345;
+    private static final int CAMERA_PIC_REQUEST = 1111;
+
+    CompositeDisposable compositeDisposable;
+    DropBoxAPI Api;
 
     public ProfileFragment(String token, Listener listener) {
         this.token=token;
@@ -66,8 +70,9 @@ public class ProfileFragment extends Fragment {
 
         View view=LayoutInflater.from(getContext()).inflate(R.layout.fragment_profile,container,false);
         initView(view);
-
-        new GetUser().execute("");
+        compositeDisposable = new CompositeDisposable();
+        Api = new DropBoxAPI(compositeDisposable, token);
+        getFullAccount();
         return view;
     }
 
@@ -76,14 +81,13 @@ public class ProfileFragment extends Fragment {
         tvCancel        = view.findViewById(R.id.tvCancel);
         tvSave          = view.findViewById(R.id.tvSave);
         tvName          = view.findViewById(R.id.tvName);
-        relativeLayout   =    view.findViewById(R.id.loadingView);
+        relativeLayout  =    view.findViewById(R.id.loadingView);
+        base64          = "error";
 
-        relativeLayout.setVisibility(View.VISIBLE);
-
-        tvCancel.setOnClickListener(new View.OnClickListener() {
+        tvSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.listener();
+                saveAvatar();
             }
         });
 
@@ -94,48 +98,53 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        tvSave.setOnClickListener(new View.OnClickListener() {
+        tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                relativeLayout.setVisibility(View.VISIBLE);
-                new saveImg().execute("");
+                listener.listener();
             }
         });
     }
 
+    private void getFullAccount() {
+        relativeLayout.setVisibility(View.VISIBLE);
+        Api.getFullAccount(new ListenerFullAccount() {
+            @Override
+            public void listener(FullAccount fullAccount) {
+                if (fullAccount != null) {
+                    tvName.setText(fullAccount.getName().getDisplayName());
+                    Glide.with(imageView.getContext())
+                            .load(fullAccount.getProfilePhotoUrl())
+                            .apply(new RequestOptions().placeholder(R.drawable.loading)).error(R.drawable.img_fail)
+                            .into(imageView);
+                } else {
+                    Toast.makeText(getContext(), "Fail", Toast.LENGTH_SHORT).show();
+                }
 
-    private class GetUser extends AsyncTask<String, Void, FullAccount>{
-
-        @Override
-        protected FullAccount doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config, token);
-
-            try {
-                FullAccount account = client.users().getCurrentAccount();
-                return account;
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "ket noi tk khong thanh cong trong Frofile");
-                return null;
+                relativeLayout.setVisibility(View.GONE);
             }
-
-
-        }
-
-        @Override
-        protected void onPostExecute(FullAccount fullAccount) {
-            super.onPostExecute(fullAccount);
-
-            relativeLayout.setVisibility(View.GONE);
-            tvName.setText(fullAccount.getName().getDisplayName());
-
-            Glide.with(imageView.getContext())
-                    .load(fullAccount.getProfilePhotoUrl())
-                    .apply(new RequestOptions().placeholder(R.drawable.loading)).error(R.drawable.img_fail)
-                    .into(imageView);
-        }
+        });
     }
+
+    private void saveAvatar() {
+        relativeLayout.setVisibility(View.VISIBLE);
+        Api.saveAvata(base64, new ListenerBoolean() {
+            @Override
+            public void listener(Boolean isBoolean) {
+                if (!base64.equals("error")) {
+                    if (isBoolean) {
+                        base64 = "error";
+                        getFullAccount();
+                        Toast.makeText(getContext(), "save Success", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Fail", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                relativeLayout.setVisibility(View.GONE);
+            }
+        });
+    }
+
 
     private class saveImg extends AsyncTask<String, Void, Boolean> {
 
@@ -187,10 +196,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void pickImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, CAMERA_PIC_REQUEST);
     }
 
@@ -198,23 +204,17 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == CAMERA_PIC_REQUEST && data.getData() != null && data != null) {
-                 Glide.with(this).load(data.getData()).into(imageView);
-                Bitmap bitmap = null;
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
-                    base64 = encodeImage(bitmap);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Log.d("hoangdev", "uri take photo:  " + data.toString());
+            if (requestCode == CAMERA_PIC_REQUEST && data.getExtras().get("data") != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                 Glide.with(this).load(bitmap).into(imageView);
+                 base64 = encodeImage(bitmap);
+                Log.d("hoangdev", "uri take photo:  " + bitmap);
             }
 
         }
     }
-    private String encodeImage(Bitmap bm)
-    {
+
+    private String encodeImage(Bitmap bm) {
         if(bm==null) return null;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG,100,baos);

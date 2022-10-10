@@ -31,12 +31,18 @@ import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.RelocationResult;
 import com.dropbox.core.v2.sharing.PathLinkMetadata;
+import com.hoangt3k56.dropbox.listener.ListeberListMetadata;
+import com.hoangt3k56.dropbox.listener.ListenerBoolean;
 import com.hoangt3k56.dropbox.listener.ListenerMetadata;
 import com.hoangt3k56.dropbox.R;
 import com.hoangt3k56.dropbox.adapter.FileAdapter;
+import com.hoangt3k56.dropbox.listener.ListenerString;
+import com.hoangt3k56.dropbox.model.DropBoxAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 
 public class FolderFagment extends Fragment {
@@ -46,10 +52,13 @@ public class FolderFagment extends Fragment {
     HomeFragment homeFragment;
     RelativeLayout relativeLayout;
 
-    public String token, mpath;
+    String token, mpath;
     String type_file;
+
     public static String copy_move_path ="";
     public static int paste = 0;
+
+    DropBoxAPI Api;
 
     public FolderFagment(String token, String path){
         this.token = token;
@@ -60,10 +69,22 @@ public class FolderFagment extends Fragment {
         this.mpath = mpath;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_folder, container, false);
+        initView(view);
+        return view;
+    }
+
+    private void initView(View view) {
+
         relativeLayout = view.findViewById(R.id.loadingViewListFolder);
         relativeLayout.setVisibility(View.VISIBLE);
         recyclerView=view.findViewById(R.id.rcView_home_fragment);
@@ -71,6 +92,10 @@ public class FolderFagment extends Fragment {
         homeFragment = new HomeFragment();
         LinearLayoutManager linearLayoutManager=new GridLayoutManager(getContext(),3,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(linearLayoutManager);
+
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        Api = new DropBoxAPI(compositeDisposable, token);
+
         fileAdapter=new FileAdapter(new ListenerMetadata() {
             @Override
             public void listener(Metadata metadata, int i) {
@@ -82,7 +107,16 @@ public class FolderFagment extends Fragment {
                     } else if (metadata instanceof FileMetadata) {
                         String file_name = metadata.getName();
                         type_file = typeFile(file_name);
-                        new showFileMetadata().execute(metadata.getPathLower());
+                        Api.showMetadata(metadata, new ListenerString() {
+                            @Override
+                            public void listenerString(String path) {
+                                if (path != null && !type_file.equals("error")) {
+                                    replaceFragment(new ViewFileFragment(path, type_file));
+                                } else {
+                                    Toast.makeText(getContext(), "File khong dc ho tro!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
 
                 } else if (i == 1) {
@@ -93,12 +127,26 @@ public class FolderFagment extends Fragment {
         recyclerView.setAdapter(fileAdapter);
         loadData();
 
-        return view;
+    }
+
+    public void loadData() {
+        relativeLayout.setVisibility(View.VISIBLE);
+        Api.loadMatadata(mpath, new ListeberListMetadata() {
+            @Override
+            public void Listener(List<Metadata> metadataList) {
+                if (metadataList != null) {
+                    fileAdapter.setMetadataList(metadataList);
+                } else {
+                    Toast.makeText(getContext(), "No data!", Toast.LENGTH_SHORT).show();
+                }
+                relativeLayout.setVisibility(View.GONE);
+            }
+        });
     }
 
     private String typeFile(String file_name) {
         String type_file = "error";
-        if (file_name.contains(".jpg") || file_name.contains(".jpge")) {
+        if (file_name.contains(".jpg") || file_name.contains(".jpge") || !file_name.contains(".")) {
             type_file = "img";
         } else if (file_name.contains(".mp4")) {
             type_file = "mp4";
@@ -106,41 +154,6 @@ public class FolderFagment extends Fragment {
         return type_file;
     }
 
-    private class showFileMetadata extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config,token);
-            try {
-                PathLinkMetadata sharedLinkMetadata = client.sharing().createSharedLink(strings[0]);
-//                Log.d("hoangdev", a.getResult().getFileLockInfo().getCreated().toString());
-
-//                Log.d("hoangdev", sharedLinkMetadata.getName());
-                Log.d("hoangdev", sharedLinkMetadata.getUrl());
-                return sharedLinkMetadata.getUrl().replace("?dl=0", "?raw=1");
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "Loi tao url link \n" + e.getRequestId());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-//                Log.d("hoangdev", url);
-                if ( !type_file.equals("error")) {
-                    replaceFragment(new ViewFileFragment(url, type_file));
-                } else {
-                    Toast.makeText(getContext(), "App không hỗ trợ mở file này !", Toast.LENGTH_SHORT).show();
-                }
-
-            } else {
-                Toast.makeText(getContext(), "App không hỗ trợ mở file này !", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     private void showMenu(Metadata metadata) {
         PopupMenu popupMenu = new PopupMenu(getContext(), getView().findViewById(R.id.item_file));
@@ -181,88 +194,56 @@ public class FolderFagment extends Fragment {
             Log.d("hoangdev", "" + paste);
         } else if (paste == 1){
             // move Folder/file
-            new moveFolder().execute(metadata.getPathLower());
+            Api.move(copy_move_path, metadata.getPathLower(), new ListenerBoolean() {
+                @Override
+                public void listener(Boolean isBoolean) {
+                    if (isBoolean) {
+                        Toast.makeText(getContext(), "Move success", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Error move", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             FolderFagment.paste = 0;
             replaceFragment(new FolderFagment(token, metadata.getPathLower()));
         }  else if (paste == 2){
             // copy Folder/file
-            new copyFolder().execute(metadata.getPathLower());
+           Api.copy(copy_move_path, metadata.getPathLower(), new ListenerBoolean() {
+               @Override
+               public void listener(Boolean isBoolean) {
+                   if (isBoolean) {
+                       Toast.makeText(getContext(), "Copy success", Toast.LENGTH_SHORT).show();
+                   } else {
+                       Toast.makeText(getContext(), "Error copy", Toast.LENGTH_SHORT).show();
+                   }
+               }
+           });
             FolderFagment.paste = 0;
             replaceFragment(new FolderFagment(token, metadata.getPathLower()));
         }
     }
 
-    private class copyFolder extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config,token);
-            String [] a = FolderFagment.copy_move_path.split("/");
-            try {
-                Log.d("hoangdev", "copy:  " + FolderFagment.copy_move_path + "  -->  " + strings[0]);
-                RelocationResult copyV2 =
-                        client.files().copyV2(FolderFagment.copy_move_path, strings[0] + "/" + a[a.length-1]);
-                return true;
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "Loi copy file " + e.toString());
-            }
 
-            return false;
-        }
 
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                Log.d("hoangdev", "copy thanh cong thanh cong");
-            } else {
-                Log.e("hoangdev", "Copy khong thanh cong");
-            }
-        }
-    }
-
-    private class moveFolder extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config,token);
-            String [] a = FolderFagment.copy_move_path.split("/");
-
-            try {
-                Log.d("hoangdev", "move:   " + FolderFagment.copy_move_path + "  -->  " + strings[0]);
-                RelocationResult copyV2 =
-                        client.files().moveV2(FolderFagment.copy_move_path, strings[0] + "/" + a[a.length-1]);
-                return true;
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "Loi di chuyen file " + e.toString());
-            }
-
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                Log.d("hoangdev", "di chuyen thanh cong thanh cong");
-            } else {
-                Log.e("hoangdev", "move khong thanh cong");
-            }
-        }
-    }
-
-    private void delete(Metadata metadata) {
-
+    private void delete(Metadata metadata)
+    {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
         dialog.setTitle("Delete");
         dialog.setMessage("Bạn chắc chắn muốn xóa "+ metadata.getName() + " ?");
         dialog.setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new deleteFolder().execute(metadata.getPathLower());
-                replaceFragment(new FolderFagment(token, HomeFragment.mpath));
+                Api.deleteMetadata(metadata, new ListenerBoolean() {
+                    @Override
+                    public void listener(Boolean isBoolean) {
+                        if (isBoolean) {
+                            Toast.makeText(getContext(), "Delete success", Toast.LENGTH_SHORT).show();
+                            replaceFragment(new FolderFagment(token, HomeFragment.mpath));
+                        } else {
+                            Toast.makeText(getContext(), "Delete error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
         dialog.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
@@ -274,34 +255,6 @@ public class FolderFagment extends Fragment {
 
         dialog.show();
 
-    }
-
-    private class deleteFolder extends AsyncTask<String, Void, Boolean> {
-
-
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config,token);
-
-            try {
-                DeleteResult deleteV2 = client.files().deleteV2(strings[0]);
-                return true;
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "Loi xoa file "+ e.toString());
-            }
-
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (aBoolean) {
-                Log.d("hoangdev", "xoa thanh cong");
-            }
-        }
     }
 
     private void properties(Metadata metadata) {
@@ -324,60 +277,6 @@ public class FolderFagment extends Fragment {
 
         dialog.setMessage(message);
         dialog.show();
-    }
-
-
-    public void loadData() {
-        relativeLayout.setVisibility(View.VISIBLE);
-        new GetFileAndFolder().execute(mpath);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    private class GetFileAndFolder extends AsyncTask<String, Void, List<Metadata>> {
-
-        @Override
-        protected List<Metadata> doInBackground(String... strings) {
-            DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
-            DbxClientV2 client = new DbxClientV2(config,token);
-            // Get files and folder metadata from Dropbox root directory
-            List<Metadata> list = new ArrayList<>();
-            ListFolderResult result = null;
-            try {
-                result = client.files().listFolder(strings[0]);
-                Log.d("hoangdev", "List metadata path: " + mpath);
-                while (true) {
-                    for (Metadata metadata : result.getEntries()) {
-//                        Log.d("hoangdev", metadata.getPathLower().toString());
-                        list.add(metadata);
-                    }
-
-                    if (!result.getHasMore()) {
-                        break;
-                    }
-
-                    result = client.files().listFolderContinue(result.getCursor());
-                }
-            } catch (DbxException e) {
-                e.printStackTrace();
-                Log.e("hoangdev", "loi get FileFolder\n"+ e.toString());
-            }
-
-
-            return list;
-
-        }
-
-        @Override
-        protected void onPostExecute(List<Metadata> metadataList) {
-            super.onPostExecute(metadataList);
-            fileAdapter.setMetadataList(metadataList);
-            relativeLayout.setVisibility(View.GONE);
-        }
     }
 
     private void replaceFragment(Fragment fragment) {
