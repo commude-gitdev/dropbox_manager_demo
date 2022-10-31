@@ -46,11 +46,10 @@
         <ImageView
             android:id="@+id/imgAvatar"
             android:adjustViewBounds="true"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="80dp"
-            android:layout_marginRight="80dp"
-            android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_marginTop="60dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="200dp"
+            android:layout_height="200dp">
         </ImageView>
 
         <TextView

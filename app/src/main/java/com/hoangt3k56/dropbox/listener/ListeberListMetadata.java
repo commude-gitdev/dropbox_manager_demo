@@ -1,9 +1,9 @@
 package com.hoangt3k56.dropbox.listener;
 
-import com.dropbox.core.v2.files.Metadata;
+import com.hoangt3k56.dropbox.model.Entrie;
 
 import java.util.List;
 
 public interface ListeberListMetadata {
-    void Listener(List<Metadata> metadataList);
+    void Listener(List<Entrie> entrieList);
 }

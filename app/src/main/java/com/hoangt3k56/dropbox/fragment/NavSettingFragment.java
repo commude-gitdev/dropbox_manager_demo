@@ -14,7 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.dropbox.core.android.AuthActivity;
+import com.hoangt3k56.dropbox.api.ApiService;
 import com.hoangt3k56.dropbox.listener.Listener;
 import com.hoangt3k56.dropbox.listener.ListenerInt;
 import com.hoangt3k56.dropbox.activity.LoginActivity;
@@ -29,9 +31,10 @@ public class NavSettingFragment extends Fragment {
 
     RecyclerView recyclerView;
     Listener listener;
+    String token;
 
-
-    public NavSettingFragment(Listener listener) {
+    public NavSettingFragment(String token, Listener listener) {
+        this.token = token;
         this.listener = listener;
     }
 
@@ -84,6 +87,7 @@ public class NavSettingFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 AuthActivity.result=null;
+//                ApiService.apiService.removeToken(token);
                 startActivity(new Intent(getContext(), LoginActivity.class));
             }
         });

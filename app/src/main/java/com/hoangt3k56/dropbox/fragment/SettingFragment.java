@@ -23,7 +23,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view=LayoutInflater.from(getContext()).inflate(R.layout.fragment_setting,container,false);
         token=getArguments().getString("TOKEN");
-        navSettingFragment=new NavSettingFragment(new Listener() {
+        navSettingFragment=new NavSettingFragment(token, new Listener() {
             @Override
             public void listener() {
                 addFragment(profileFragment);

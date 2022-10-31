@@ -9,26 +9,23 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.FolderMetadata;
-import com.dropbox.core.v2.files.Metadata;
 import com.hoangt3k56.dropbox.listener.ListenerMetadata;
 import com.hoangt3k56.dropbox.R;
+import com.hoangt3k56.dropbox.model.Entrie;
 
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.viewHodel> {
 
-    private List<Metadata> metadataList;
-    ListenerMetadata listenerMetadata;
+    private List<Entrie> entrieList;
+    ListenerMetadata listenerEntrie;
 
-    public FileAdapter(ListenerMetadata listenerMetadata) {
-        this.listenerMetadata = listenerMetadata;
+    public FileAdapter(ListenerMetadata listenerEntrie) {
+        this.listenerEntrie = listenerEntrie;
     }
 
-    public void setMetadataList(List<Metadata> list) {
-        this.metadataList = list;
+    public void setEntrieList(List<Entrie> list) {
+        this.entrieList = list;
         notifyDataSetChanged();
      }
 
@@ -43,29 +40,29 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.viewHodel> {
 
     @Override
     public void onBindViewHolder(@NonNull viewHodel holder, int position) {
-       Metadata metadata = metadataList.get(position);
+        Entrie entrie = entrieList.get(position);
 
-        if (metadata != null) {
-            holder.tvName_file.setText(metadata.getName());
+        if (entrie != null) {
+            holder.tvName_file.setText(entrie.getName());
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listenerMetadata.listener(metadata, 0);
+                    listenerEntrie.listener(entrie, 0);
                 }
             });
 
             holder.layout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    listenerMetadata.listener(metadata, 1);
+                    listenerEntrie.listener(entrie, 1);
                     return false;
                 }
             });
 
-            if (metadata instanceof FileMetadata) {
+            if (entrie.getTag().equals("file")) {
                 holder.img_file.setImageResource(R.drawable.icons8_file);
             }
-            else if (metadata instanceof FolderMetadata) {
+            else if (entrie.getTag().equals("folder")) {
                 holder.img_file.setImageResource(R.drawable.icons8_folder_48);
             }
         }
@@ -74,8 +71,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.viewHodel> {
     @Override
     public int getItemCount() {
 
-        if (metadataList != null) {
-            return metadataList.size();
+        if (entrieList != null) {
+            return entrieList.size();
         }
         return 0;
     }
