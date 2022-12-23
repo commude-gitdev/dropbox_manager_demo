@@ -32,9 +32,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     </Button>
-    <WebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </WebView>
+
+    <Button
+        android:id="@+id/btnLogin2"
+        android:textSize="20dp"
+        android:layout_marginTop="40dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="100sp"
+        android:paddingRight="100sp"
+        android:layout_gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:text="LOGIN WV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </Button>
+
 </LinearLayout>
